@@ -21,7 +21,7 @@ func TestEncodeDecode(t *testing.T) {
 	packet := NewPacket()
 	packet.Header.SetType(TypeAck)
 	packet.Header.SetCode(1)
-	packet.Header.SetContextType(ContextTypeText)
+	packet.Header.SetContentType(ContentTypeText)
 	packet.Header.SetExt(1)
 
 	// log.Fatalf("%#v", packet)

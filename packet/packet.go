@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
+	"fmt"
 )
 
 type Packet struct {
@@ -30,11 +31,11 @@ const (
 )
 
 const (
-	ContextTypeNone byte = iota
-	ContextTypeText
-	ContextTypeJson
-	ContextTypeNson
-	ContextTypeBin
+	ContentTypeNone byte = iota
+	ContentTypeText
+	ContentTypeJson
+	ContentTypeNson
+	ContentTypeBin
 )
 
 const (
@@ -74,8 +75,25 @@ func NewHeaderFromBytes(bytes []byte) (Header, error) {
 		bytes,
 	}
 
-	// todo!
-	// validate
+	if header.bytes[2] > Version {
+		return header, fmt.Errorf("version %v unsupported", header.bytes[2])
+	}
+
+	if header.Type() > TypeRst {
+		return header, fmt.Errorf("type %v unsupported", header.Type())
+	}
+
+	if header.Compress() > CompressGzip {
+		return header, fmt.Errorf("compress %v unsupported", header.Compress())
+	}
+
+	if header.Crypto() > CryptoNoneChaCha20Poly1305 {
+		return header, fmt.Errorf("crypto %v unsupported", header.Crypto())
+	}
+
+	if header.ContentType() > ContentTypeBin {
+		return header, fmt.Errorf("content type %v unsupported", header.ContentType())
+	}
 
 	return header, nil
 }
@@ -98,7 +116,7 @@ func (h *Header) Type() byte {
 
 func (h *Header) SetType(t byte) error {
 	if t > TypeRst {
-		return errors.New("The 'type' is not supported")
+		return fmt.Errorf("type %v unsupported", t)
 	}
 
 	h.bytes[3] = t
@@ -121,7 +139,7 @@ func (h *Header) Compress() byte {
 
 func (h *Header) SetCompress(c byte) error {
 	if c > CompressGzip {
-		return errors.New("The 'compress' is not supported")
+		return fmt.Errorf("compress %v unsupported", c)
 	}
 
 	h.bytes[5] &= 0b00001111
@@ -138,7 +156,7 @@ func (h *Header) Crypto() byte {
 
 func (h *Header) SetCrypto(c byte) error {
 	if c > CryptoNoneChaCha20Poly1305 {
-		return errors.New("The 'crypto' is not supported")
+		return fmt.Errorf("crypto %v unsupported", c)
 	}
 
 	h.bytes[5] &= 0b11110000
@@ -147,13 +165,13 @@ func (h *Header) SetCrypto(c byte) error {
 	return nil
 }
 
-func (h *Header) ContextType() byte {
+func (h *Header) ContentType() byte {
 	return h.bytes[6]
 }
 
-func (h *Header) SetContextType(c byte) error {
-	if c > ContextTypeBin {
-		return errors.New("The 'context type' is not supported")
+func (h *Header) SetContentType(c byte) error {
+	if c > ContentTypeBin {
+		return fmt.Errorf("content type %v unsupported", c)
 	}
 
 	h.bytes[6] = c
@@ -208,8 +226,6 @@ func Decode(bytes []byte) (*Packet, error) {
 }
 
 func (p *Packet) Encode(buffer *bytes.Buffer) error {
-	// buffer := new(bytes.Buffer)
-
 	buffer.Write(p.Header.bytes)
 	buffer.WriteString(p.Chan)
 	buffer.WriteByte(0)
