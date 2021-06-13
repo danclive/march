@@ -12,7 +12,7 @@ const (
 	CODE      = "code"
 	ERROR     = "error"
 	DATA      = "data"
-	DATA_SIZE = "datase"
+	DATA_SIZE = "data_size"
 	SLOT      = "slot"
 	FLAGS     = "flags"
 )
