@@ -27,18 +27,6 @@ const (
 )
 
 const (
-	CodeOK byte = iota
-)
-
-const (
-	ContentTypeNone byte = iota
-	ContentTypeText
-	ContentTypeJson
-	ContentTypeNson
-	ContentTypeBin
-)
-
-const (
 	CompressNone byte = iota
 	CompressZstd
 	CompressGzip
@@ -89,10 +77,6 @@ func NewHeaderFromBytes(bytes []byte) (Header, error) {
 
 	if header.Crypto() > CryptoNoneChaCha20Poly1305 {
 		return header, fmt.Errorf("crypto %v unsupported", header.Crypto())
-	}
-
-	if header.ContentType() > ContentTypeBin {
-		return header, fmt.Errorf("content type %v unsupported", header.ContentType())
 	}
 
 	return header, nil
@@ -170,10 +154,6 @@ func (h *Header) ContentType() byte {
 }
 
 func (h *Header) SetContentType(c byte) error {
-	if c > ContentTypeBin {
-		return fmt.Errorf("content type %v unsupported", c)
-	}
-
 	h.bytes[6] = c
 
 	return nil

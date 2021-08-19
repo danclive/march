@@ -3,20 +3,15 @@ package util
 import "time"
 
 func ParseTime(value string) (time.Time, error) {
-	loc := time.FixedZone("CST", +8*60*60)
-
-	return time.ParseInLocation("2006-01-02 15:04:05", value, loc)
+	return time.ParseInLocation("2006-01-02 15:04:05", value, time.Local)
 }
 
 func ParseDate(value string) (time.Time, error) {
-	loc := time.FixedZone("CST", +8*60*60)
-
-	return time.ParseInLocation("2006-01-02", value, loc)
+	return time.ParseInLocation("2006-01-02", value, time.Local)
 }
 
 func TimeFormat(t time.Time) string {
-	loc := time.FixedZone("CST", +8*60*60)
-	return t.In(loc).Format("2006-01-02 15:04:05")
+	return t.Local().Format("2006-01-02 15:04:05")
 }
 
 type MyTime time.Time
